@@ -163,6 +163,21 @@ Its behavior:
 
 The API is effectively **write-only**.
 
+### 8.1 Google Sheets Access Protection
+
+The underlying Google Sheet is **not publicly accessible**.
+
+Key observations:
+- The sheet cannot be opened directly in a browser
+- Direct Google Sheets API read attempts return **permission denied**
+- No API key or OAuth token is exposed client-side
+- All access is mediated exclusively through the Netlify backend
+
+This ensures that:
+- Victims cannot view their submitted data
+- Data cannot be accessed without backend credentials
+- The Google Sheet functions as a **private, write-only datastore**
+
 ---
 
 ## 9. Backend Response
