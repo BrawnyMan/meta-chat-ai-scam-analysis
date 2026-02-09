@@ -63,7 +63,10 @@ The main page imitates **Meta / Facebook settings or support pages** and prompts
 
 A visual comparison shows copied design cues but no real Meta functionality.
 
+Fake:
 ![Fake site vs real Meta settings](images/fake.png)
+
+Real:
 ![Fake site vs real Meta settings](images/real.png)
 
 ---
@@ -109,11 +112,27 @@ The final step on the website is a form that collects user-provided data.
 | Name | Arbitrary input |
 | Email | Victim email |
 | Phone | Victim phone |
-| Password | Victim password |
+| Password | User-entered credential / sensitive input |
 
 The user is not informed where this data is stored or how it will be used.
 
 ![Data collection form](images/form.png)
+
+### 6.1 Two-Factor Authentication Prompt (Unverified)
+
+After submitting initial credentials, the interface presents a **2FA-related prompt**, suggesting an additional verification step.
+
+![2FA prompt shown on fake site](images/2fa.png)
+
+Important notes:
+- !!!This step was **not fully tested**!!!
+
+Based on common phishing techniques, this step is **likely intended** to:
+- Capture one-time passwords (OTP)
+- Enable real-time credential replay or account takeover
+- Increase the perceived legitimacy of the process
+
+However, this remains an **inference**, not a confirmed implementation detail.
 
 ---
 
@@ -126,7 +145,7 @@ When the form is submitted, the browser sends a **POST request** to the backend 
 POST https://zehtevano-preverjanjee.netlify.app/api/sheets
 
 
-This request is made by submiting the form.
+This request is made by submitting the form.
 
 ![Network request sent on form submission](images/req.png)
 ![Network request](images/sheet.png)
@@ -294,7 +313,7 @@ This design enables maximum data collection with minimal user control.
 
 ## Scam Summary & Impact
 
-This is a **low-effort but effective data-harvesting operation**.
+This is a **low-effort but effective data-harvesting and account-compromise operation**.
 
 **Key characteristics:**
 - Impersonates Meta / Facebook
@@ -313,22 +332,30 @@ Victims cannot:
 - Edit or delete submissions
 - Verify legitimacy
 
-Collected data can be:
+Based on reports from other affected users, submitted credentials may be used to:
+- Perform **account takeover**
+- Rename compromised accounts (e.g., to “Meta Chat AI”)
+- Send scam messages to new victims from hijacked accounts
+
+This behavior enables **self-propagation** of the scam through trusted accounts.
+
+Collected data can also be:
 - Aggregated
 - Sold
-- Used for phishing or follow-up scams
+- Used for targeted phishing or follow-up attacks
 
 ---
 
 ## Conclusion
 
-The system is intentionally designed to:
+The system appears designed to:
 - Appear legitimate
 - Collect sensitive information
+- Enable account compromise
 - Prevent user oversight
 - Centralize victim data
 
-The technical design prioritizes **data capture over user safety**.
+The technical design prioritizes **data capture and control over user safety**.
 
 ---
 
@@ -336,6 +363,7 @@ The technical design prioritizes **data capture over user safety**.
 
 If affected:
 - Do not submit personal data
+- Secure your account immediately (password change, revoke sessions, enable 2FA)
 - Report the site to:
   - Netlify Abuse
   - Meta / Facebook impersonation channels
