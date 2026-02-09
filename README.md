@@ -185,3 +185,158 @@ Successful response confirms:
 - The user has no visibility into stored entries
 
 ---
+
+## 11. API Capabilities (Reverse-Engineered)
+
+Testing shows the backend API exposes a **very limited action set**.
+
+| Action | Status |
+|------|-------|
+| `append` | ✅ Supported |
+| `update` | ✅ Supported (restricted) |
+| `read` / `get` | ❌ Not supported |
+| `batchGet` | ❌ Not supported |
+| `delete` | ❌ Not supported |
+| `batchUpdate` | ❌ Not supported |
+
+The API is effectively **write-only** for clients.
+
+---
+
+## 12. Data Ingestion (`append`)
+
+- Submissions are appended to **Google Sheets**
+- Each request creates a **new row**
+- **Columns A–F** store victim-submitted data
+- Existing data is never returned to the client
+
+---
+
+## 13. Restricted Updates (`update`)
+
+Example request:
+```bash
+curl https://zehtevano-preverjanjee.netlify.app/api/sheets \
+  -H "content-type: application/json" \
+  --data-raw "{\"action\":\"update\",\"row\":3562,\"value\":[[\"X\",\"Y\",\"Z\",\"Q\"]]}"
+```
+
+Response:
+```json
+{
+  "updatedRange": "Sheet1!G3562:J3562",
+  "updatedRows": 1,
+  "updatedCells": 4
+}
+```
+
+Key findings:
+- row is mandatory
+- Any provided range is ignored
+- Only columns G–J are writable
+- Columns A–F cannot be modified
+- Updates append within the row rather than overwrite data
+
+This suggests:
+- A–F → raw victim data (immutable)
+- G–J → internal processing / status fields
+
+---
+
+## 14. Update Boundary Enforcement
+
+When update attempts exceed allowed columns, the backend returns a Google API error:
+
+```json
+{
+  "code": 400,
+  "message": "Requested writing within range [Sheet1!J3562:K3562], but tried writing to column [L]"
+}
+```
+
+This confirms strict column limits are enforced.
+
+---
+
+## 15. Blocked Actions
+
+Unsupported actions return null:
+- Append without payload
+- Read / get
+- Delete
+- Batch or structural operations
+
+There is no way for users to read, delete, or erase submitted data.
+
+---
+
+## 16. Data Storage Model
+
+The backend uses Google Sheets as a protected data store:
+|Columns|Purpose|
+|-----|-----|
+|A–F|	Victim-submitted personal data|
+|G–J|	Internal processing / status|
+|K+|	Protected / unused|
+
+Read access is restricted; attempts result in permission denied.
+
+---
+
+
+## 17. Backend Summary
+- Data ingestion via append
+- Limited internal updates via update
+- No read, delete, or batch access
+- Client visibility intentionally restricted
+
+This design enables maximum data collection with minimal user control.
+
+## Scam Summary & Impact
+
+This is a **low-effort but effective data-harvesting operation**.
+
+**Key characteristics:**
+- Impersonates Meta / Facebook
+- Uses a professional Next.js frontend
+- Uses Netlify serverless functions
+- Collects personal data silently
+- Write-only data ingestion
+- No transparency or user control
+
+---
+
+## Risk & Impact
+
+Victims cannot:
+- View submitted data
+- Edit or delete submissions
+- Verify legitimacy
+
+Collected data can be:
+- Aggregated
+- Sold
+- Used for phishing or follow-up scams
+
+---
+
+## Conclusion
+
+The system is intentionally designed to:
+- Appear legitimate
+- Collect sensitive information
+- Prevent user oversight
+- Centralize victim data
+
+The technical design prioritizes **data capture over user safety**.
+
+---
+
+## Responsible Disclosure
+
+If affected:
+- Do not submit personal data
+- Report the site to:
+  - Netlify Abuse
+  - Meta / Facebook impersonation channels
+  - Local cybercrime authorities if necessary
